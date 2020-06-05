@@ -1,0 +1,360 @@
+<html>
+
+<head>
+    <title>chat UI</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="author" content="">
+    <link href="../css/chat.css" rel="stylesheet">
+    <link href="../css/public.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/humber.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+        integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://at.alicdn.com/t/font_1341535_nnery41b.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css" />
+</head>
+<script>
+    document.getElementsByTagName('body').height = window.innerHeight;
+</script>
+<style>
+    .searchBox {
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border: 1px solid skyblue;
+        border-top: none;
+        overflow-y: scroll;
+        width: 260px;
+        z-index: 9999;
+        left: 15px;
+        top: 100%;
+        position: absolute;
+        background: #f3f3f3;
+    }
+</style>
+
+<body>
+    <div class='box' id='app' v-on:keyup.esc="ws_close()">
+        <div class="leftbar">
+            <ul>
+                <li data-type='friends'><i class="fas fa-user"></i></li>
+                <li data-type='groups'><i class="fas fa-users"></i></li>
+                <li><i class="fas fa-smile"></i></li>
+                <li><i class="fas fa-envelope"></i></li>
+                <li><i class="fas fa-bell"></i></li>
+                <li><i class="fas fa-calendar-alt"></i></li>
+                <li class='bottom-icon'><i class="fas fa-power-off "></i></li>
+            </ul>
+        </div>
+        <div class="container layout cx-fex-c fex-items-c">
+            <div class='chat-box xl8 fex-column cx-fex animate__animated'>
+                <div class='chat-top-menu cx-fex fex-items-c cx-fex-nowrap'>
+                    <div class='cx-fex-l xl4 pos-r'>
+                        <input type="text" class="search-ipt" v-model='searchValue' @input='searchFriend()'
+                            placeholder="搜索、查找好友" @blur="hideSearchBox">
+                        <button class='search-btn t-c' @click='searchFriend()'><i
+                                class='iconfont tx-sousuo'></i></button>
+                        <ul class='fex-column layout cx-fex-l searchBox ' v-show='searchListShow'>
+                            <li class='cx-fex-l layout pad-a5 pad-l10 b-b' v-for="(item,index) in searchList"
+                                :key='index' @click=changeReceiver(item)>
+                                <div class="self-img-box">
+                                    <img :src="item.uimg" :alt="item.uname">
+                                </div>
+                                <div class='fex-column jus-cnt-spb pad-l15 cx-fex'>
+                                    <span class='t-14 t-gray '>
+                                        {{item.uname}}
+                                    </span>
+                                    <span class='t-14 t-blue '>
+                                        {{item.uid}}
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <span class='chat-title t-18 xl4 cx-fex-c'>
+                        {{chat_friend.uname}}
+                    </span>
+                    <div class='chat-top-self cx-fex-c xl3 fex-items-c '>
+                        <button @click="changeUser()" class="button button-S mr-15 hidden">切换用户</button>
+                        <div class="self-img-box">
+                            <img src="" alt="">
+                        </div>
+                        <p class='t-14 t-gray pad-l10'>
+                            {{chat_user.uid}}
+                        </p>
+                    </div>
+                    <div class='xl1 cx-fex-c'>
+                        <button class="hamburger hamburger-cancel">
+                            <span class="icon"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class='layout cx-fex-l chat-main-box'>
+                    <ul class='friends-list xl3 fex-column cx-fex-l  cx-fex-nowrap'>
+                        <li class='layout friends-li cx-fex-l fex-items-c ' v-for="(item,index) in friends_list"
+                            :key='index' @click=changeReceiver(item)>
+                            <div class="self-img-box">
+                                <img :src="item.uimg" :alt="item.uname">
+                            </div>
+                            <div class='fex-column jus-cnt-spb pad-l15 cx-fex'>
+                                <span class='t-14 t-gray '>
+                                    {{item.uname}}
+                                </span>
+                                <span class='t-14 t-blue '>
+                                    {{item.uid}}
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class='xl9 fex-column cx-fex-l'>
+                        <ul class='chat-record layout fex-column' id='recordList'>
+                            <li v-for="(item,index) in chat_record[chat_friend.uid]" :key="index"
+                                :class="[item.uid==chat_friend.uid? left_record:right_record]">
+                                <span class="self-img-box">
+                                    <img :src="item.uimg" :alt="item.uname">
+                                </span>
+                                <span class='record-content'>
+                                    {{item.msg}}
+                                </span>
+                                <div class='send_time'>{{item.send_time}}</div>
+                            </li>
+                        </ul>
+                        <div class='layout fex-column cx-fex-l fex-items-e chat-text-box'>
+                            <textarea name="chat-content" cols="30" rows="7" id='content' class="layout chat-text"
+                                v-model="chat_user.send_msg" v-on:keyup.enter="ws_send()">
+                        </textarea>
+                            <div class='cx-fex-r layout mt-10'>
+                                <button class='button button-S bg-blue mr-15' id='close' @click="ws_close()">
+                                    关闭 / ESC
+                                </button>
+                                <button class='button button-S bg-blue mr-15' id='send' @click="ws_send()">
+                                    发送 / Enter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        var CreateWebSocket = (function () {
+            return function (urlValue) {
+                if (window.WebSocket) return new WebSocket(urlValue);
+                if (window.MozWebSocket) return new MozWebSocket(urlValue);
+                return false;
+            }
+        })();
+        /* 实例化 WebSocket 连接对象, 地址为 ws 协议 */
+        var webSocket = CreateWebSocket("ws://localhost");
+        let app = new Vue({
+            el: '#app',
+            data: {
+                searchValue: '',
+                chat_friend: {
+                    uname: 'chat_friend',
+                    uimg: '../img/self.jpg',
+                    uid: 3,
+                },
+                chat_user: {
+                    uname: 'chat_user',
+                    uimg: '../img/self.jpg',
+                    uid: 1,
+                    send_msg: ''
+                },
+                friends_list: [{
+                        uname: 'chat_user',
+                        uimg: '../img/self.jpg',
+                        uid: 1
+                    },
+                    {
+                        uname: 'qasdfasdfa',
+                        uimg: '../img/self.jpg',
+                        uid: 2
+                    },
+                    {
+                        uname: 'chat_friend',
+                        uimg: '../img/self.jpg',
+                        uid: 3
+                    },
+                    {
+                        uname: 'chat_friend',
+                        uimg: '../img/self.jpg',
+                        uid: 1221
+                    },
+                    {
+                        uname: 'chat_friend',
+                        uimg: '../img/self.jpg',
+                        uid: 23222
+                    },
+                ],
+                chat_record: {},
+                left_record: 'left_record',
+                right_record: 'right_record',
+                searchList: [],
+            },
+            mounted: function () {
+                this.$prompt('ID请填写数字', '请填写您的登录ID', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    center: true,
+                    inputPattern: /^\d+$/
+                }).then((value) => {
+                    this.chat_user.uid = value.value;
+                    this.ws_login();
+                }).catch((err) => {
+                    this.chat_user.uid = parseInt(Math.random() * 10 + Math.random() * 20);
+                    this.$message({
+                        type: 'info',
+                        message: `已自动为您分配ID,您的ID为${this.chat_user.uid}`
+                    });
+                    this.ws_login();
+                });
+            },
+            methods: {
+                ws_login: function () {
+                    webSocket.send(JSON.stringify({
+                        user: {
+                            uid: this.chat_user.uid,
+                            type: 'login'
+                        }
+                    }));
+                },
+                ws_send: function () {
+                    /* 发送消息 */
+                    let odate = new Date();
+                    send_time = odate.toLocaleString();
+                    let alldata = JSON.stringify({
+                        user: this.chat_user,
+                        receiver: this.chat_friend,
+                        send_time,
+                        type: 'chat'
+                    });
+                    if (!this.chat_record.hasOwnProperty(this.chat_friend.uid)) this.chat_record[this
+                        .chat_friend.uid] = [];
+                    if (this.chat_friend.uid != this.chat_user.uid) {
+                        // this.chat_record[this.chat_friend.uid].push()
+                        this.$set(this.chat_record[this.chat_friend.uid], this.chat_record[this.chat_friend
+                            .uid].length, {
+                            send_time,
+                            msg: this.chat_user.send_msg,
+                            ...this.chat_user
+                        });
+                    }
+                    webSocket.send(alldata);
+                    var ele = document.getElementById('recordList');
+                    ele.scrollTop = ele.scrollHeight;
+                    this.chat_user.send_msg = '';
+                },
+                rceiverMsg: function (data) {
+                    let {
+                        send_time,
+                        msg,
+                        uname,
+                        uid,
+                        uimg
+                    } = {
+                        ...data
+                    };
+                    let id = uid + '';
+                    if (!this.chat_record.hasOwnProperty(id)) this.chat_record[id] = [];
+                    this.$set(this.chat_record[id], this.chat_record[id].length, {
+                        send_time,
+                        msg,
+                        uname,
+                        uid,
+                        uimg
+                    });
+                    this.$forceUpdate();
+                },
+                changeReceiver: function (receiver) {
+                    this.chat_friend = receiver;
+                    this.searchValue = '';
+                    this.searchList = [];
+                },
+                changeuser: function (msg) {
+                    /* 切换用户 */
+                    console.log(msg)
+                },
+                ws_close: function () {
+                    $('.chat-box').addClass('animate__zoomOut');
+                },
+                searchFriend: function () {
+                    this.searchList = this.friends_list.filter(ele => {
+                        let id = ele.uid + '';
+                        let res = (ele.uname.indexOf(this.searchValue) != -1 || id.indexOf(this
+                            .searchValue) == 0) && this.searchValue.trim().length > 0;
+                        return res;
+                    });
+                    console.log(this.searchList);
+                },
+                hideSearchBox: function () {
+
+                }
+            },
+            computed: {
+                searchListShow: function () {
+                    return this.searchList.length > 0;
+                }
+            }
+        })
+        /* 接收到服务端的消息时 */
+        webSocket.onmessage = function (msg) {
+            var d = JSON.parse(msg.data);
+            if (d.type == "tip") {
+                app.$message.closeAll();
+                app.$message({
+                    message: d.msg,
+                    type: d.status ? 'success' : 'warning'
+                });
+            }
+            console.log(d);
+            if (d.type == "msg") {
+                app.$notify.closeAll();
+                app.$notify({
+                    title: "您有来自" + d.uname + "的新消息",
+                    dangerouslyUseHTMLString: true,
+                    message: `<p class='layout' style='width: 260px;'>${d.msg}</p><span class='layout cx-fex-r t-r t-12 t-green'>${d.send_time}</span>`,
+                    type: 'success',
+                    onClick: function () {
+                        let {
+                            uname,
+                            uid,
+                            uimg
+                        } = {
+                            ...d
+                        };
+                        app.changeReceiver({
+                            uname,
+                            uid,
+                            uimg
+                        });
+                        this.close();
+                    }
+                });
+                app.rceiverMsg(d);
+            }
+        };
+        /* 关闭消息 */
+        /*        document.getElementById("close").addEventListener("click", function () {
+                   webSocket.close();
+               }); */
+        $('.hamburger').click(function () {
+            $(this).toggleClass("active");
+        })
+        $('.leftbar li').click(function () {
+            let type = $(this).data('type');
+            if (type == 'friends') {
+                $('.chat-box').removeClass('animate__zoomOut').addClass('animate__zoomIn');
+            }
+        })
+    </script>
+      
+</body>
+
+</html>
