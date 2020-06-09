@@ -15,7 +15,6 @@ app.ws.use((ctx, next) => {
         if(data.user.type == "login"){
             ctx.websocket.id = data.user.uid;
             console.log("用户"+ data.user.uid +"加入聊天室");
-
         }else if(data.type=="chat"){
             var need = {
                 send_time:data.send_time,
