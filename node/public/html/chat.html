@@ -6,15 +6,10 @@
     <meta name="author" content="">
     <link href="../css/chat.css" rel="stylesheet">
     <link href="../css/public.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css" />
+    <link rel="stylesheet" href="../css/animate.min.css" />
     <!-- 引入样式 -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="../node_modules/element-ui/lib/theme-chalk/index.css">
 </head>
-<style>
-    
-
-</style>
-
 <body>
     <div class='box' id='app' v-on:keyup.esc="ws_close()">
         <div class="leftbar">
@@ -28,18 +23,36 @@
                 <li class='bottom-icon'><i class="el-icon-switch-button"></i></li>
             </ul>
         </div>
+        <!--        <el-dialog title="登录认证" :visible.sync="dialogFormVisible" :center='true' >
+            <el-form :model="form">
+                <el-form-item label="昵称" :label-width="formLabelWidth">
+                    <el-input v-model="chat_user.uname" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="ID" :label-width="formLabelWidth">
+                    <el-select v-model="chat_user.uid" placeholder="请选择用户ID" >
+                        <el-option :label="item.uid" :value="item.uid" v-for='(item,index) in friends_list'
+                            :key='index'>
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="cancelLogin">取 消</el-button>
+                <el-button type="primary" @click="okLogin">确 定</el-button>
+            </div>
+        </el-dialog> -->
         <div class="container layout cx-fex-c fex-items-c">
             <div class='chat-box xl8 fex-column cx-fex animate__animated'>
                 <div class='chat-top-menu cx-fex fex-items-c cx-fex-nowrap'>
                     <div class='cx-fex-l xl4 pos-r'>
                         <input type="text" class="search-ipt" v-model='searchValue' @input='searchFriend()'
-                            placeholder="搜索、查找好友" @blur="hideSearchBox">
+                            placeholder="搜索、查找好友">
                         <button class='search-btn t-c' @click='searchFriend()'><i class='el-icon-search'></i></button>
                         <ul class='fex-column  cx-fex-l searchBox ' v-show='searchListShow'>
-                            <li class='cx-fex-l layout pad-a5 pad-l10 b-b' v-for="(item,index) in searchList"
-                                :key='index' @click=changeReceiver(item)>
+                            <li class="cx-fex-l layout pad-a5 pad-l10 b-b"  v-for="(item,index) in searchList"
+                                :key='index' @click=changeReceiver(item) >
                                 <div class="self-img-box">
-                                    <img :src="item.uimg" :alt="item.uname">
+                                    <el-avatar >{{item.uname.substr(0,1).toUpperCase()}}</el-avatar>
                                 </div>
                                 <div class='fex-column jus-cnt-spb pad-l15 cx-fex'>
                                     <span class='t-14 t-gray '>
@@ -58,30 +71,34 @@
                     <div class='chat-top-self cx-fex-c xl3 fex-items-c '>
                         <button @click="changeUser()" class="button button-S mr-15 hidden">切换用户</button>
                         <div class="self-img-box">
-                            <img :src="chat_user.uimg" alt="">
+          <!--                   <img :src="chat_user.uimg" alt=""> -->
+                            <el-avatar >{{chat_friend.uname.substr(0,1).toUpperCase()}}</el-avatar>
                         </div>
                         <p class='t-14 t-gray pad-l10'>
-                            {{chat_user.uid}}
+                            {{chat_user.uname}}
                         </p>
                     </div>
-                    <div class='xl1 cx-fex-c close-btn' >
+                    <div class='xl1 cx-fex-c close-btn'>
                         <i class="el-icon-close pointer" @click="ws_close()"></i>
                     </div>
                 </div>
                 <div class='layout cx-fex-l chat-main-box cx-fex-nowrap'>
                     <ul class='friends-list xl4 fex-column cx-fex-l  cx-fex-nowrap' id='friends-list'>
-                        <li class='layout friends-li cx-fex-l fex-items-c' v-for="(item,index) in friends_list"
-                            :key='index' @click=changeReceiver(item)>
-                            <div class="self-img-box">
-                                <img :src="item.uimg" :alt="item.uname">
+                        <li class='layout friends-li cx-fex-l fex-items-c cx-fex-nowrap' v-for="(item,index) in friends_list"
+                            :key='index' @click=changeReceiver(item) >
+                            <div class="self-img-box ">
+                                <el-avatar>{{item.uname.substr(0,1).toUpperCase()}}</el-avatar>
                             </div>
-                            <div class='fex-column jus-cnt-spb pad-l15 cx-fex'>
+                            <div class='fex-column jus-cnt-spb pad-l15 cx-fex xl7'>
                                 <span class='t-14 t-gray '>
                                     {{item.uname}}
                                 </span>
-                                <span class='t-14 t-blue '>
+                                <span class='t-14 t-blue'>
                                     {{item.uid}}
                                 </span>
+                            </div>
+                            <div class='unreadNum  t-c' v-show='item.unread>0'>
+                                {{item.unread}}
                             </div>
                         </li>
                     </ul>
@@ -90,7 +107,7 @@
                             <li v-for="(item,index) in chat_record[chat_friend.uid]" :key="index"
                                 :class="[item.uid==chat_friend.uid? left_record:right_record]">
                                 <span class="self-img-box">
-                                    <img :src="item.uimg" :alt="item.uname">
+                                    <el-avatar>{{item.uname.substr(0,1).toUpperCase()}}</el-avatar>
                                 </span>
                                 <span class='record-content'>
                                     {{item.msg}}
@@ -105,9 +122,9 @@
                         </ul>
                         <div class='layout fex-column cx-fex-l fex-items-e chat-text-box'>
                             <textarea name="chat-content" cols="30" rows="7" id='content' class="layout chat-text"
-                                v-model="chat_user.send_msg" v-on:keyup.enter="ws_send()">
+                                v-model="send_msg" v-on:keyup.enter="ws_send()">
                         </textarea>
-                            <div class='cx-fex-r layout mt-40'>
+                            <div class='cx-fex-r mt-15'>
                                 <button class='button button-S bg-blue mr-15 bor-rb' id='close' @click="ws_close()">
                                     关闭 / ESC
                                 </button>
@@ -120,12 +137,10 @@
                 </div>
             </div>
         </div>
-
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <!-- 引入组件库 -->
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../node_modules/element-ui/lib/index.js"></script>
+    <script src="../js/jquery-3.4.1.min.js"></script>
     <!-- <script src="../js/all.js" async='true'></script> -->
     <script>
         var CreateWebSocket = (function () {
@@ -140,79 +155,73 @@
             el: '#app',
             data: {
                 searchValue: '',
+                dialogFormVisible: false,
+                send_msg: '',
+                formLabelWidth: '140px',
+                form: {
+                    name: '',
+                    region: '',
+                    date1: '',
+                    date2: '',
+                    delivery: false,
+                    type: [],
+                    resource: '',
+                    desc: ''
+                },
                 chat_friend: {
-                    uname: 'chat_friend',
-                    uimg: '../img/self.jpg',
-                    uid: 3,
+                    uname: '默认用户',
+                    uid: 0,
                 },
                 chat_user: {
-                    uname: 'chat_user',
-                    uimg: '../img/self.jpg',
-                    uid: 1,
-                    send_msg: ''
+                    uname: '默认用户',
+                    uid: 0,
                 },
-                friends_list: [{
-                        uname: 'chat_user',
-                        uimg: '../img/self.jpg',
-                        uid: 1
-                    },
-                    {
-                        uname: 'qasdfasdfa',
-                        uimg: '../img/self.jpg',
-                        uid: 2
-                    },
-                    {
-                        uname: 'chat_friend',
-                        uimg: '../img/self.jpg',
-                        uid: 3
-                    },
-                    {
-                        uname: 'chat_friend',
-                        uimg: '../img/self.jpg',
-                        uid: 1221
-                    },
-                    {
-                        uname: 'chat_friend',
-                        uimg: '../img/self.jpg',
-                        uid: 23222
-                    },
-                ],
+                friends_list: [],
                 chat_record: {},
                 left_record: 'left_record',
                 right_record: 'right_record',
                 searchList: [],
             },
-            mounted: function () {
+            created: function () {
                 /* 实例化 WebSocket 连接对象, 地址为 ws 协议 */
+                /*    webSocket.send(JSON.stringify({
+                       type: 'getList'
+                   })); */
+            },
+            mounted: function () {
                 webSocket = CreateWebSocket("ws://localhost");
-                this.$prompt('ID请填写数字', '请填写您的登录ID', {
+                this.$prompt('只允许字母和汉字', '请填写您的昵称', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     center: true,
-                    inputPattern: /^\d+$/
+                    inputPattern: /^[a-zA-Z\u4e00-\u9fa5]+$/
                 }).then((value) => {
-                    this.chat_user.uid = value.value;
+                    this.chat_user.uname = value.value;
+                    this.chat_user.uid = this.friends_list[this.friends_list.length-1].uid+1;
                     this.ws_login();
                 }).catch((err) => {
-                    this.chat_user.uid = parseInt(Math.random() * 10 + Math.random() * 20);
+                    this.chat_user.uname = '未填写昵称';
+                    this.chat_user.uid =this.friends_list[this.friends_list.length-1].uid+1;
                     this.$message({
                         type: 'info',
                         message: `已自动为您分配ID,您的ID为${this.chat_user.uid}`
                     });
                     this.ws_login();
                 });
-
             },
             updated() {
 
             },
             methods: {
+                setUserList: function (userList) {
+                    this.friends_list = userList;
+                    this.$forceUpdate();
+                },
                 ws_login: function () {
                     webSocket.send(JSON.stringify({
-                        user: {
-                            uid: this.chat_user.uid,
-                            type: 'login'
-                        }
+                        uid: this.chat_user.uid,
+                        uname: this.chat_user.uname,
+                        type: 'login'
                     }));
                 },
                 ws_send: function () {
@@ -222,22 +231,22 @@
                     let alldata = JSON.stringify({
                         user: this.chat_user,
                         receiver: this.chat_friend,
+                        send_msg: this.send_msg,
                         send_time,
                         type: 'chat'
                     });
                     if (!this.chat_record.hasOwnProperty(this.chat_friend.uid)) this.chat_record[this
                         .chat_friend.uid] = [];
                     if (this.chat_friend.uid != this.chat_user.uid) {
-                        // this.chat_record[this.chat_friend.uid].push()
                         this.$set(this.chat_record[this.chat_friend.uid], this.chat_record[this.chat_friend
                             .uid].length, {
                             send_time,
-                            msg: this.chat_user.send_msg,
+                            msg: this.send_msg,
                             ...this.chat_user
                         });
                     }
                     webSocket.send(alldata);
-                    this.chat_user.send_msg = '';
+                    this.send_msg = '';
                     this.$forceUpdate();
                     this.$nextTick(function () {
                         var top = $('#recordList')[0].scrollHeight + 20;
@@ -250,7 +259,6 @@
                         msg,
                         uname,
                         uid,
-                        uimg
                     } = {
                         ...data
                     };
@@ -261,9 +269,26 @@
                         msg,
                         uname,
                         uid,
-                        uimg
                     });
+                    if(this.chat_friend.uid!=uid){
+                        this.setUnreadNum(uid);
+                    }
                     this.$forceUpdate();
+                    this.$nextTick(function () {
+                        var top = $('#recordList')[0].scrollHeight + 20;
+                        $('#recordList').scrollTop(top);
+                    })
+                },
+                setUnreadNum:function(uid){
+                    this.friends_list.forEach((f,index) => {
+                        if(f.uid==uid){
+                            console.log(this.friends_list[index]);
+                            if(!this.friends_list[index].hasOwnProperty("unread")){
+                                this.$set(this.friends_list[index],"unread", 0);
+                            }
+                            this.friends_list[index]["unread"]++;
+                        }
+                    });
                 },
                 changeReceiver: function (receiver) {
                     this.chat_friend = receiver;
@@ -284,17 +309,22 @@
                             .searchValue) == 0) && this.searchValue.trim().length > 0;
                         return res;
                     });
-                    console.log(this.searchList);
                 },
-                hideSearchBox: function () {
-
-                }
             },
             computed: {
                 searchListShow: function () {
                     return this.searchList.length > 0;
                 }
-            }
+            },
+            watch: {
+                chat_friend:function(){
+                    this.friends_list.forEach((f,index)=>{
+                        if(f.uid==this.chat_friend.uid){
+                            this.$set(this.friends_list[index],'unread', 0);
+                        }
+                    })
+                }
+            },
         })
         /* 接收到服务端的消息时 */
         webSocket.onmessage = function (msg) {
@@ -306,7 +336,9 @@
                     type: d.status ? 'success' : 'warning'
                 });
             }
-            console.log(d);
+            if (d.type == "getUser") {
+                app.setUserList(d.alluser);
+            }
             if (d.type == "msg") {
                 app.$notify.closeAll();
                 app.$notify({
@@ -318,14 +350,12 @@
                         let {
                             uname,
                             uid,
-                            uimg
                         } = {
                             ...d
                         };
                         app.changeReceiver({
                             uname,
                             uid,
-                            uimg
                         });
                         this.close();
                     }
@@ -346,7 +376,6 @@
                 $('.chat-box').removeClass('animate__zoomOut').addClass('animate__zoomIn');
             }
         })
-       
     </script>
 
 </body>
