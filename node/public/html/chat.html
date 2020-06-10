@@ -61,7 +61,7 @@
                             <img :src="chat_user.uimg" alt="">
                         </div>
                         <p class='t-14 t-gray pad-l10'>
-                            {{chat_user.uname}}
+                            {{chat_user.uid}}
                         </p>
                     </div>
                     <div class='xl1 cx-fex-c close-btn' >
@@ -126,7 +126,7 @@
     <!-- 引入组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="../js/all.js" async='true'></script>
+    <!-- <script src="../js/all.js" async='true'></script> -->
     <script>
         var CreateWebSocket = (function () {
             return function (urlValue) {

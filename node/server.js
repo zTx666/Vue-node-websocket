@@ -10,7 +10,7 @@ const app = new Koa();
 /**静态资源（服务端） */
 app.use(serve(__dirname + '/public'));
 router.get('/', async (ctx) => {
-    ctx.body = "首页";
+    ctx.response.redirect('/html/chat.html')
 })
 
 app.listen(port, host, () => {
