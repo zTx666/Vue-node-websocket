@@ -16,6 +16,7 @@
     "koa-router": "^9.0.1",
     "koa-static": "^5.0.0",
     "koa-websocket": "^6.0.0",
+    "moment": "^2.26.0",
     "webpack-dev-server": "^3.11.0"
   }
 }

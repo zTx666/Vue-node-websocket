@@ -10,6 +10,7 @@
     <!-- 引入样式 -->
     <link rel="stylesheet" href="../node_modules/element-ui/lib/theme-chalk/index.css">
 </head>
+
 <body>
     <div class='box' id='app' v-on:keyup.esc="ws_close()">
         <div class="leftbar">
@@ -42,23 +43,24 @@
             </div>
         </el-dialog> -->
         <div class="container layout cx-fex-c fex-items-c">
-            <div class='chat-box xl8 fex-column cx-fex animate__animated'>
+            <div class='chat-box xl8 fex-column cx-fex animate__animated hidden'>
                 <div class='chat-top-menu cx-fex fex-items-c cx-fex-nowrap'>
                     <div class='cx-fex-l xl4 pos-r'>
-                        <input type="text" class="search-ipt" v-model='searchValue' @input='searchFriend()'
-                            placeholder="搜索、查找好友">
+                        <input type="text" v-model='searchValue' @input='searchFriend()' placeholder="搜索、查找好友"
+                            :class="[searchListShow?activeSearch:searchStyle]">
                         <button class='search-btn t-c' @click='searchFriend()'><i class='el-icon-search'></i></button>
                         <ul class='fex-column  cx-fex-l searchBox ' v-show='searchListShow'>
-                            <li class="cx-fex-l layout pad-a5 pad-l10 b-b"  v-for="(item,index) in searchList"
-                                :key='index' @click=changeReceiver(item) >
+
+                            <li class="cx-fex-l layout pad-a5 pad-l10" v-for="(item,index) in searchList" :key='index'
+                                @click=changeReceiver(item)>
                                 <div class="self-img-box">
-                                    <el-avatar >{{item.uname.substr(0,1).toUpperCase()}}</el-avatar>
+                                    <el-avatar>{{item.uname.substr(0,1).toUpperCase()}}</el-avatar>
                                 </div>
                                 <div class='fex-column jus-cnt-spb pad-l15 cx-fex'>
-                                    <span class='t-14 t-gray '>
+                                    <span class='t-12 t-gray '>
                                         {{item.uname}}
                                     </span>
-                                    <span class='t-14 t-blue '>
+                                    <span class='t-12 t-gray '>
                                         {{item.uid}}
                                     </span>
                                 </div>
@@ -71,8 +73,8 @@
                     <div class='chat-top-self cx-fex-c xl3 fex-items-c '>
                         <button @click="changeUser()" class="button button-S mr-15 hidden">切换用户</button>
                         <div class="self-img-box">
-          <!--                   <img :src="chat_user.uimg" alt=""> -->
-                            <el-avatar >{{chat_user.uname.substr(0,1).toUpperCase()}}</el-avatar>
+                            <!--                   <img :src="chat_user.uimg" alt=""> -->
+                            <el-avatar>{{chat_user.uname.substr(0,1).toUpperCase()}}</el-avatar>
                         </div>
                         <p class='t-14 t-gray pad-l10'>
                             {{chat_user.uname}}
@@ -84,16 +86,17 @@
                 </div>
                 <div class='layout cx-fex-l chat-main-box cx-fex-nowrap'>
                     <ul class='friends-list xl4 fex-column cx-fex-l  cx-fex-nowrap' id='friends-list'>
-                        <li class='layout friends-li cx-fex-l fex-items-c cx-fex-nowrap' v-for="(item,index) in friends_list"
-                            :key='index' @click=changeReceiver(item) >
+                        <span class=' pad-a10 t-gray '>好友列表</span>
+                        <li class='layout friends-li cx-fex-l fex-items-c cx-fex-nowrap'
+                            v-for="(item,index) in friends_list" :key='index' @click=changeReceiver(item)>
                             <div class="self-img-box ">
                                 <el-avatar>{{item.uname.substr(0,1).toUpperCase()}}</el-avatar>
                             </div>
                             <div class='fex-column jus-cnt-spb pad-l15 cx-fex xl7'>
-                                <span class='t-14 t-gray '>
+                                <span class='t-12 t-gray '>
                                     {{item.uname}}
                                 </span>
-                                <span class='t-14 t-blue'>
+                                <span class='t-12 t-gray'>
                                     {{item.uid}}
                                 </span>
                             </div>
@@ -118,7 +121,7 @@
                         <ul class='tool_bar layout cx-fex-l '>
                             <li><i class='el-icon-toilet-paper'></i></li>
                             <li><i class='el-icon-microphone'></i></li>
-                            <li><i class='el-icon-close-notification'></i></li>
+                            <li @click='banNotifica()'><i class='el-icon-close-notification'></i></li>
                         </ul>
                         <div class='layout fex-column cx-fex-l fex-items-e chat-text-box'>
                             <textarea name="chat-content" cols="30" rows="7" id='content' class="layout chat-text"
@@ -137,7 +140,18 @@
                 </div>
             </div>
         </div>
+        <div class=" chat-console fex-column">
+            <div class='layout pad-t10 pad-b10 t-fff t-c b-b pointer' @click='hideConsole($event)'>聊天控制台
+                <i class="el-icon-arrow-down pad-l10"></i>
+            </div>
+            <ul class=" t-fff fex-column cx-fex-l cx-fex-nowrap chat-console-list animate__animated">
+                <li v-for='(item,index) in logList' :key='index' class='t-fff t-12 pad-t5 pad-b5'>
+                {{item}}
+                </li>
+            </ul>
+        </div>
     </div>
+
     <script src="../js/vue.js"></script>
     <script src="../node_modules/element-ui/lib/index.js"></script>
     <script src="../js/jquery-3.4.1.min.js"></script>
@@ -180,7 +194,10 @@
                 chat_record: {},
                 left_record: 'left_record',
                 right_record: 'right_record',
+                activeSearch: 'activeSearch',
+                searchStyle: 'search-ipt',
                 searchList: [],
+                logList:[]
             },
             created: function () {
                 /* 实例化 WebSocket 连接对象, 地址为 ws 协议 */
@@ -197,11 +214,11 @@
                     inputPattern: /^[a-zA-Z\u4e00-\u9fa5]+$/
                 }).then((value) => {
                     this.chat_user.uname = value.value;
-                    this.chat_user.uid = this.friends_list[this.friends_list.length-1].uid+1;
+                    this.chat_user.uid = this.friends_list[this.friends_list.length - 1].uid + 1;
                     this.ws_login();
                 }).catch((err) => {
                     this.chat_user.uname = '未填写昵称';
-                    this.chat_user.uid =this.friends_list[this.friends_list.length-1].uid+1;
+                    this.chat_user.uid = this.friends_list[this.friends_list.length - 1].uid + 1;
                     this.$message({
                         type: 'info',
                         message: `已自动为您分配ID,您的ID为${this.chat_user.uid}`
@@ -217,12 +234,17 @@
                     this.friends_list = userList;
                     this.$forceUpdate();
                 },
+                setLogList:function(logList){
+                     this.logList = logList;
+                    this.$forceUpdate();
+                },
                 ws_login: function () {
                     webSocket.send(JSON.stringify({
                         uid: this.chat_user.uid,
                         uname: this.chat_user.uname,
                         type: 'login'
                     }));
+                    $('.chat-box').removeClass('hidden').addClass('animate__zoomIn');
                 },
                 ws_send: function () {
                     /* 发送消息 */
@@ -270,7 +292,7 @@
                         uname,
                         uid,
                     });
-                    if(this.chat_friend.uid!=uid){
+                    if (this.chat_friend.uid != uid) {
                         this.setUnreadNum(uid);
                     }
                     this.$forceUpdate();
@@ -279,12 +301,12 @@
                         $('#recordList').scrollTop(top);
                     })
                 },
-                setUnreadNum:function(uid){
-                    this.friends_list.forEach((f,index) => {
-                        if(f.uid==uid){
+                setUnreadNum: function (uid) {
+                    this.friends_list.forEach((f, index) => {
+                        if (f.uid == uid) {
                             console.log(this.friends_list[index]);
-                            if(!this.friends_list[index].hasOwnProperty("unread")){
-                                this.$set(this.friends_list[index],"unread", 0);
+                            if (!this.friends_list[index].hasOwnProperty("unread")) {
+                                this.$set(this.friends_list[index], "unread", 0);
                             }
                             this.friends_list[index]["unread"]++;
                         }
@@ -310,6 +332,13 @@
                         return res;
                     });
                 },
+                banNotifica: function () {
+
+                },
+                hideConsole: function (el) {
+                    $($(el.target).next()[0]).slideToggle();
+                    $(el.target).children('i').toggleClass('el-icon-arrow-down').toggleClass('el-icon-arrow-up');
+                }
             },
             computed: {
                 searchListShow: function () {
@@ -317,10 +346,10 @@
                 }
             },
             watch: {
-                chat_friend:function(){
-                    this.friends_list.forEach((f,index)=>{
-                        if(f.uid==this.chat_friend.uid){
-                            this.$set(this.friends_list[index],'unread', 0);
+                chat_friend: function () {
+                    this.friends_list.forEach((f, index) => {
+                        if (f.uid == this.chat_friend.uid) {
+                            this.$set(this.friends_list[index], 'unread', 0);
                         }
                     })
                 }
@@ -332,6 +361,7 @@
             if (d.type == "tip") {
                 app.$message.closeAll();
                 app.$message({
+                    center: true,
                     message: d.msg,
                     type: d.status ? 'success' : 'warning'
                 });
@@ -339,12 +369,15 @@
             if (d.type == "getUser") {
                 app.setUserList(d.alluser);
             }
+            if(d.type == 'updateLog'){
+                app.setLogList(d.log.split('\n'));
+            }
             if (d.type == "msg") {
-                app.$notify.closeAll();
+                // app.$notify.closeAll();
                 app.$notify({
                     title: "您有来自" + d.uname + "的新消息",
                     dangerouslyUseHTMLString: true,
-                    message: `<p class='layout' style='width: 260px;'>${d.msg}</p><span class='layout cx-fex-r t-r t-12 t-green'>${d.send_time}</span>`,
+                    message: `<p class='layout t-c' style='width: 260px;'>${d.msg}</p><span class='layout cx-fex-r t-r t-12 t-green'>${d.send_time}</span>`,
                     type: 'success',
                     onClick: function () {
                         let {
