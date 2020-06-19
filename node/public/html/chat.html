@@ -12,6 +12,7 @@
 </head>
 
 <body>
+
     <div class='box' id='app' v-on:keyup.esc="ws_close()">
         <div class="leftbar">
             <ul class='fex-column cx-fex-r ' style='height: 100%;'>
@@ -24,24 +25,6 @@
                 <li class='bottom-icon'><i class="el-icon-switch-button"></i></li>
             </ul>
         </div>
-        <!--        <el-dialog title="登录认证" :visible.sync="dialogFormVisible" :center='true' >
-            <el-form :model="form">
-                <el-form-item label="昵称" :label-width="formLabelWidth">
-                    <el-input v-model="chat_user.uname" autocomplete="off"></el-input>
-                </el-form-item>
-                <el-form-item label="ID" :label-width="formLabelWidth">
-                    <el-select v-model="chat_user.uid" placeholder="请选择用户ID" >
-                        <el-option :label="item.uid" :value="item.uid" v-for='(item,index) in friends_list'
-                            :key='index'>
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="cancelLogin">取 消</el-button>
-                <el-button type="primary" @click="okLogin">确 定</el-button>
-            </div>
-        </el-dialog> -->
         <div class="container layout cx-fex-c fex-items-c">
             <div class='chat-box xl8 fex-column cx-fex animate__animated hidden'>
                 <div class='chat-top-menu cx-fex fex-items-c cx-fex-nowrap'>
@@ -73,7 +56,6 @@
                     <div class='chat-top-self cx-fex-c xl3 fex-items-c '>
                         <button @click="changeUser()" class="button button-S mr-15 hidden">切换用户</button>
                         <div class="self-img-box">
-                            <!--                   <img :src="chat_user.uimg" alt=""> -->
                             <el-avatar>{{chat_user.uname.substr(0,1).toUpperCase()}}</el-avatar>
                         </div>
                         <p class='t-14 t-gray pad-l10'>
@@ -145,8 +127,8 @@
                 <i class="el-icon-arrow-down pad-l10"></i>
             </div>
             <ul class=" t-fff fex-column cx-fex-l cx-fex-nowrap chat-console-list animate__animated">
-                <li v-for='(item,index) in logList' :key='index' class='t-fff t-12 pad-t5 pad-b5'>
-                {{item}}
+                <li v-for='(item,index) in logList' :key='index' class='t-fff t-12 pad-t5 '>
+                    {{item}}
                 </li>
             </ul>
         </div>
@@ -155,6 +137,7 @@
     <script src="../js/vue.js"></script>
     <script src="../node_modules/element-ui/lib/index.js"></script>
     <script src="../js/jquery-3.4.1.min.js"></script>
+    <script src="../node_modules/axios/dist/axios.js"></script>
     <!-- <script src="../js/all.js" async='true'></script> -->
     <script>
         var CreateWebSocket = (function () {
@@ -197,16 +180,18 @@
                 activeSearch: 'activeSearch',
                 searchStyle: 'search-ipt',
                 searchList: [],
-                logList:[]
+                logList: []
             },
             created: function () {
                 /* 实例化 WebSocket 连接对象, 地址为 ws 协议 */
                 /*    webSocket.send(JSON.stringify({
                        type: 'getList'
                    })); */
-            },
-            mounted: function () {
                 webSocket = CreateWebSocket("ws://localhost");
+                axios.get('/')
+                    .then(response => {
+                        console.log(response);
+                    });
                 this.$prompt('只允许字母和汉字', '请填写您的昵称', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
@@ -226,16 +211,18 @@
                     this.ws_login();
                 });
             },
-            updated() {
+            mounted: function () {
 
+            },
+            updated() {
             },
             methods: {
                 setUserList: function (userList) {
                     this.friends_list = userList;
                     this.$forceUpdate();
                 },
-                setLogList:function(logList){
-                     this.logList = logList;
+                setLogList: function (logList) {
+                    this.logList =  this.logList.concat(logList);
                     this.$forceUpdate();
                 },
                 ws_login: function () {
@@ -337,7 +324,8 @@
                 },
                 hideConsole: function (el) {
                     $($(el.target).next()[0]).slideToggle();
-                    $(el.target).children('i').toggleClass('el-icon-arrow-down').toggleClass('el-icon-arrow-up');
+                    $(el.target).children('i').toggleClass('el-icon-arrow-down').toggleClass(
+                        'el-icon-arrow-up');
                 }
             },
             computed: {
@@ -369,7 +357,7 @@
             if (d.type == "getUser") {
                 app.setUserList(d.alluser);
             }
-            if(d.type == 'updateLog'){
+            if (d.type == 'updateLog') {
                 app.setLogList(d.log.split('\n'));
             }
             if (d.type == "msg") {
@@ -400,9 +388,6 @@
         /*        document.getElementById("close").addEventListener("click", function () {
                    webSocket.close();
                }); */
-        $('.hamburger').click(function () {
-            $(this).toggleClass("active");
-        })
         $('.leftbar li').click(function () {
             let type = $(this).data('type');
             if (type == 'friends') {

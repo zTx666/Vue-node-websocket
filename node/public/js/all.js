@@ -49,3 +49,4 @@ function bindResize(el) {
         )
     }
 }
+test();
