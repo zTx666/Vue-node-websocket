@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mock_select_test</title>
+    <link href="../css/public.css" rel="stylesheet">
+    <link rel="stylesheet" href="../node_modules/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id='app'>
+        <el-select v-model="value" filterable placeholder="请选择">
+            <el-option v-for="(item,index) in options_list" :key="item.value" :label="item.option" :value="item.value">
+            </el-option>
+        </el-select>
+    </div>
+    <script src="../js/vue.js"></script>
+    <script src="../node_modules/element-ui/lib/index.js"></script>
+    <script src="../node_modules/axios/dist/axios.js"></script>
+    <script>
+        let app = new Vue({
+            el: '#app',
+            mounted() {
+                axios.get('https://mock.yonyoucloud.com/mock/8783/task').then((response) => {
+                    this.options_list = response.data.list;
+                }).catch((error) => {
+                    console.log(error);
+                });
+            },
+            data() {
+                return {
+                    options_list: [],
+                    map_list: [],
+                    value: '',
+                    loading: false,
+                }
+            },
+            methods: {
+               
+            }
+        })
+    </script>
+</body>
+
+</html>

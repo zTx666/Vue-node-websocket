@@ -1,0 +1,36 @@
+[{
+        "uname": "默认用户",
+        "uimg": "../img/self.jpg",
+        "uid": 1
+    },
+    {
+        "uname": "小王",
+        "uimg": "../img/self.jpg",
+        "uid": 2
+    },
+    {
+        "uname": "小张",
+        "uimg": "../img/self.jpg",
+        "uid": 3
+    },
+    {
+        "uname": "璀璨钻石",
+        "uimg": "../img/self.jpg",
+        "uid": 1221
+    },
+    {
+        "uname": "荣耀黄金",
+        "uimg": "../img/self.jpg",
+        "uid": 23222
+    },
+    {
+        "uname": "英勇黄铜",
+        "uimg": "../img/self.jpg",
+        "uid": 33
+    },
+    {
+        "uname": "不屈白银",
+        "uimg": "../img/self.jpg",
+        "uid": 2828
+    }
+]
