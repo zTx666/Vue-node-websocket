@@ -105,7 +105,7 @@ module.exports = {
             },
             {
                 test: /\.woff$/,
-                loader: "url?limit=10000&minetype=application/font-woff"
+                loader: "file"
             },
             {
                 test: /\.ttf$/,
