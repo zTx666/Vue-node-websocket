@@ -12,9 +12,9 @@
   "dependencies": {
     "axios": "^0.19.2",
     "element-ui": "^2.13.2",
-    "webpack": "^4.43.0"
+    "webpack": "^5.75.0"
   },
   "devDependencies": {
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^5.0.1"
   }
 }
